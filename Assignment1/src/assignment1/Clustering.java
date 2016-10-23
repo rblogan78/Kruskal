@@ -67,18 +67,17 @@ public class Clustering {
         }
         int count = clusters.size();
         while(count!=i){
+            //pop the next edge
             Edge edge = edgeList.pop();
 
             int s1 = findSet(edge.getV1(), clusters);
             int s2 = findSet(edge.getV2(), clusters);
 
-            if(s1!=s2){
+            if(s1!=s2){//if one of the verts of the edge is in 'cluster' -> add to cluster
                 //union the two sets
                 clusters.get(s1).addAll(clusters.get(s2));
                 clusters.remove(s2);
             }
-            //pop the next edge
-            //if one of the verts of the edge is in 'cluster' -> add to cluster
             count=clusters.size();
         }
         edgeList.clear();
@@ -92,13 +91,33 @@ public class Clustering {
             System.out.println();
             System.out.println();
         }
-        //find the interclustering distance
-        
+        double ICD = this.interClustering(clusters);
+        System.out.println("Inter-clustering distance: "+ICD);
+        System.out.println();
     }
-    private double interClustering(){
+    private double interClustering(LinkedList<HashSet<Hotspot>> c){
         //calculate the edgeweights between the hotspots of each cluster
-        //Edge e = new Edge(hList.get(i),hList.get(j));
-        return 5.0;
+        LinkedList<Edge> icd = new LinkedList<>();
+        for(int i=0;i<hList.size();i++){
+            Hotspot first = hList.get(i);
+            for(int j=i+1;j<hList.size();j++){
+                Hotspot second = hList.get(j);
+                int ind1 = findSet(first,c);
+                int ind2 = findSet(second,c);
+                if(ind1!=ind2){
+                    Edge e = new Edge(first,second);
+                    e.setName(first.getName()+"-"+second.getName());
+                    double h = (second.getX())-(first.getX());
+                    double l = (second.getY())-(first.getY());
+                    double d = Math.sqrt(Math.pow(h,2)+Math.pow(l,2));
+                    e.setWeight(this.round(d));
+                    icd.add(e);
+                }
+            }
+        }
+        Collections.sort(icd);
+        
+        return icd.getFirst().getWeight();
     }
     
     private Hotspot calcCentroid(HashSet<Hotspot> set, int i){
