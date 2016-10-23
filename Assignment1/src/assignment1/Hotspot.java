@@ -5,8 +5,8 @@ package assignment1;
  * @author c3165020 - Robert Logan
  */
 public class Hotspot {
-    private int xCoord;
-    private int yCoord;
+    private double xCoord;
+    private double yCoord;
     private String name;
     private static int index = 0;
     
@@ -17,15 +17,15 @@ public class Hotspot {
         index++;
     }
     
-    public Hotspot(int x, int y, String n){
+    public Hotspot(double x, double y, String n){
         xCoord = x;
         yCoord = y;
         name = n;
     }
     
-    public int getX(){ return xCoord; }
+    public double getX(){ return xCoord; }
     
-    public int getY(){ return yCoord; }
+    public double getY(){ return yCoord; }
     
     public String getName(){ return name; }
     

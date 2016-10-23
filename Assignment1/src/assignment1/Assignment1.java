@@ -33,9 +33,4 @@ private static Clustering c;
             System.out.println(e);
         }
     }
-    
-    private static void hello(){
-        
-    }
-    
 }

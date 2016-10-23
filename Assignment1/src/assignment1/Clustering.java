@@ -5,7 +5,6 @@
  */
 package assignment1;
 import java.util.*;
-import java.io.IOException;
 import java.math.*;
 
 
@@ -24,27 +23,34 @@ public class Clustering {
     }
     
     public void run(){
-        calcEdgeweights(hList.size());
         System.out.println("Hello and welcome to Kruskal's Clustering!");
         System.out.println();
         System.out.println("There are "+hList.size()+" hotspots.");
         System.out.println();
         int i=1;
         while(i!=0){
-            System.out.println("How many emergency stations would you like?");
-            System.out.println("(Enter a number between 1 and "+hList.size()+" to "
-                    + "place the emergency stations.");
-            System.out.println("Enter 0 to exit.");
-            System.out.println();
-            i = sc.nextInt();
-            if(i>0&&i<=hList.size()){
-                kruskalAlg(i);
-            }else if(i==0){
-                System.out.println("Thankyou for using Kruskal's Clustering. Bye.");
-                break;
-            }else{
+            try{
+                calcEdgeweights(hList.size());
+                System.out.println("How many emergency stations would you like?");
+                System.out.println("(Enter a number between 1 and "+hList.size()+" to "
+                        + "place the emergency stations.");
+                System.out.println("Enter 0 to exit.");
+                System.out.println();
+
+                i = sc.nextInt();
+                if(i>0&&i<=hList.size()){
+                    kruskalAlg(i);
+                }else if(i==0){
+                    System.out.println("Thankyou for using Kruskal's Clustering. Bye.");
+                    break;
+                }else{
+                    System.out.println("Entry not valid.");
+                }        
+            }catch(Exception e){
                 System.out.println("Entry not valid.");
-            }                    
+                sc.nextLine();
+            }
+                        
         }     
     }
     
@@ -59,8 +65,8 @@ public class Clustering {
             clusters.add(new HashSet<>());
             clusters.get(j).add(hList.get(j));
         }
-        int count = hList.size();
-        while(count>i){
+        int count = clusters.size();
+        while(count!=i){
             Edge edge = edgeList.pop();
 
             int s1 = findSet(edge.getV1(), clusters);
@@ -73,7 +79,7 @@ public class Clustering {
             }
             //pop the next edge
             //if one of the verts of the edge is in 'cluster' -> add to cluster
-            count--;
+            count=clusters.size();
         }
         edgeList.clear();
         int index = 0;
@@ -83,6 +89,7 @@ public class Clustering {
             Hotspot centroid = calcCentroid(c, index);
             System.out.println("Coordinates: ("+centroid.getX()+", "+centroid.getY()+")");
             System.out.print("Hotspots: {"+this.clusterNames(c)+"}");
+            System.out.println();
             System.out.println();
         }
         //find the interclustering distance
@@ -96,15 +103,15 @@ public class Clustering {
     
     private Hotspot calcCentroid(HashSet<Hotspot> set, int i){
         Iterator iterator = set.iterator();
-        int xTotal = 0;
-        int yTotal = 0;
+        double xTotal = 0;
+        double yTotal = 0;
         int count = set.size();
         while(iterator.hasNext()){
             Hotspot h = (Hotspot)iterator.next();
             xTotal = xTotal+h.getX();
             yTotal = yTotal+h.getY();
         }
-        Hotspot centroid = new Hotspot(xTotal/count, yTotal/count, "centroid "+i);
+        Hotspot centroid = new Hotspot(round(xTotal/count), round(yTotal/count), "centroid "+i);
         
         return centroid;
     }
@@ -136,15 +143,19 @@ public class Clustering {
             for(int j=i+1;j<n;j++){
                 Edge e = new Edge(hList.get(i),hList.get(j));
                 e.setName(hList.get(i).getName()+"-"+hList.get(j).getName());
-                int h = (hList.get(j).getX())-(hList.get(i).getX());
-                int l = (hList.get(j).getY())-(hList.get(i).getY());
+                double h = (hList.get(j).getX())-(hList.get(i).getX());
+                double l = (hList.get(j).getY())-(hList.get(i).getY());
                 double d = Math.sqrt(Math.pow(h,2)+Math.pow(l,2));
-                BigDecimal bd = new BigDecimal(d);
-                bd = bd.setScale(2, RoundingMode.HALF_UP);
-                e.setWeight(bd.doubleValue());
+                e.setWeight(this.round(d));
                 edgeList.add(e);
             }
         }
         Collections.sort(edgeList);
+    }
+    
+    private double round(double d){
+        BigDecimal bd = new BigDecimal(d);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }
